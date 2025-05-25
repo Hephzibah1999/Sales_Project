@@ -3,43 +3,50 @@ from sqlalchemy.orm import declarative_base, relationship, sessionmaker
 import pandas as pd
 import datetime
 
-DATABASE_URL = "mssql+pyodbc://username:password@localhost/sales_db?driver=ODBC+Driver+17+for+SQL+Server"
+
+DATABASE_URL = "mssql+pyodbc://@LAPTOP-9KG5SR2C\\SQLEXPRESS/sales_db?driver=ODBC+Driver+17+for+SQL+Server&trusted_connection=yes"
 
 engine = create_engine(DATABASE_URL)
 SessionLocal = sessionmaker(bind=engine)
 Base = declarative_base()
 
 class Product(Base):
-    __tablename__ = 'products'
-    product_id = Column(String, primary_key=True)
-    name = Column(String)
-    category = Column(String)
+    __tablename__ = "products"
+
+    product_id = Column(String(50), primary_key=True)
+    name = Column(String(100))
+    category = Column(String(100))
     unit_price = Column(Float)
 
 class Customer(Base):
     __tablename__ = 'customers'
-    customer_id = Column(String, primary_key=True)
-    name = Column(String)
-    email = Column(String)
-    address = Column(String)
+    customer_id = Column(String(50), primary_key=True)
+    name = Column(String(100))
+    email = Column(String(100))
+    address = Column(String(200))
 
 class Order(Base):
     __tablename__ = 'orders'
-    order_id = Column(String, primary_key=True)
-    customer_id = Column(String, ForeignKey('customers.customer_id'))
+
+    order_id = Column(String(50), primary_key=True)  # Fixed length
+    customer_id = Column(String(50), ForeignKey('customers.customer_id'))
     order_date = Column(Date)
-    payment_method = Column(String)
-    region = Column(String)
+    payment_method = Column(String(50))
+    region = Column(String(50))
+
     customer = relationship("Customer")
+
 
 class OrderItem(Base):
     __tablename__ = 'order_items'
+
     id = Column(Integer, primary_key=True, autoincrement=True)
-    order_id = Column(String, ForeignKey('orders.order_id'))
-    product_id = Column(String, ForeignKey('products.product_id'))
+    order_id = Column(String(50), ForeignKey('orders.order_id'))
+    product_id = Column(String(50), ForeignKey('products.product_id'))
     quantity_sold = Column(Integer)
     discount = Column(Float)
     shipping_cost = Column(Float)
+
     order = relationship("Order")
     product = relationship("Product")
 
@@ -57,7 +64,7 @@ def main():
     # Insert unique Products
     products = df[['Product ID', 'Product Name', 'Category', 'Unit Price']].drop_duplicates()
     for _, row in products.iterrows():
-        existing = session.query(Product).get(row['Product ID'])
+        existing = session.get(Product, row['Product ID'])
         if not existing:
             product = Product(
                 product_id=row['Product ID'],
@@ -72,7 +79,7 @@ def main():
     # Insert unique Customers
     customers = df[['Customer ID', 'Customer Name', 'Customer Email', 'Customer Address']].drop_duplicates()
     for _, row in customers.iterrows():
-        existing = session.query(Customer).get(row['Customer ID'])
+        existing = session.get(Customer, row['Customer ID'])
         if not existing:
             customer = Customer(
                 customer_id=row['Customer ID'],
@@ -87,7 +94,7 @@ def main():
     # Insert unique Orders
     orders = df[['Order ID', 'Customer ID', 'Date of Sale', 'Payment Method', 'Region']].drop_duplicates()
     for _, row in orders.iterrows():
-        existing = session.query(Order).get(row['Order ID'])
+        existing = session.get(Order, row['Order ID'])
         if not existing:
             order = Order(
                 order_id=row['Order ID'],

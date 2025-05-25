@@ -1,0 +1,6 @@
+2025-05-24 15:12:38,623 - INFO - CSV loaded with 6 rows.
+2025-05-24 15:12:38,785 - INFO - Products inserted.
+2025-05-24 15:12:38,793 - INFO - Customers inserted.
+2025-05-24 15:12:38,805 - INFO - Orders inserted.
+2025-05-24 15:12:38,819 - INFO - OrderItems inserted.
+2025-05-24 15:12:38,819 - INFO - Data load completed successfully.
